@@ -1,37 +1,42 @@
+
 #include<iostream>
 #include<istream>
 #include<fstream>
 #include<stdlib.h>
 #include<string.h>
 #include<vector>
-#include<ctime>
 #include<chrono>
 #include<thread>
+#include <ctime>
 
 using namespace std;
+using namespace chrono_literals;
 
-struct MCQ {
-    string question;
-    string options[4];
-    int correctOption;
-};
 void login();
 void registr();
 void forgot();
-void takeExam();
+void clearScreen();
+void runQuiz();
 
 int main() {
 
     int choice;
-  
-    cout << "-----------------------------------------------------------------------\n\n\n";
+ #pragma warning(disable : 4996)
+
+    cout << "-----------------------------------------------------------------------\n\n";
     cout << "                   ->   Welcome to EXAM PORTAL <-                        \n\n";
+    cout << "-------------------------------------------------------------------------\n\n";
+    time_t now = time(0);
+    const char* date_time = ctime(&now);
+    cout << date_time << endl;
     cout << "--------------- Select the option from the given choices --------------\n\n";
+
+
     cout << "1.LOGIN TO YOUR ACCOUNT:" << endl;
     cout << "2.REGISTER NEW USER:" << endl;
     cout << "3.FORGOT YOUR PASSWORD/USERNAME:" << endl;
     cout << "4.START THE TEST:" << endl;
-    cout << "5.LOGOUT FROTHE EXAM PORTAL:" << endl;
+    cout << "5.LOGOUT FROM THE EXAM PORTAL:" << endl;
     cout << "\n Kindly Enter your choice :";
     cin >> choice;
     cout << endl;
@@ -47,10 +52,10 @@ int main() {
         forgot();
         break;
     case 4:
-        takeExam();
+        runQuiz();
         break;
     case 5:
-        cout << "Thanks for using our Exam Portal.Session is closing and you are LOGGED OUT.Wishing you best for your future endeavours\n\n";
+        cout << "Thanks for using our Exam Portal.Session is closing and you are LOGGED OUT.Wishing you best of luck for your future endeavours\n\n";
         break;
     default:
         system("cls");
@@ -97,66 +102,126 @@ void login()
     }
 }
 
-void takeExam() {
-    string user;
-    MCQ questions[5];
-    questions[0] = { "The brain of any computer system is?", {"A.ALU","B.CPU","C.memory","D.control unit"}, 2 };
-    questions[1] = { "Which of the following computer language is used for artificial intelligence?", {"A. COBOL", "B. VERILOG", "C. PROLOG", "D. HTML"}, 3 };
-    questions[2] = { "Which of the following is the 1's complement of 10?", {"A. 10", "B. 01", "C. 001", "D.010"}, 2 };
-    questions[3] = { "Which one among these is not a primitive datatype?", {"A. int", "B. float", "C. char", "D. array"}, 4 };
-    questions[4] = { "Which one among these is not a keyword?", {"A. int", "B. typedef", "C. construct", "D. else"}, 3 };
-    
+bool askQuestion(const string& question, const string& optionA, const string& optionB, const string& optionC, const string& correctAnswer)
+{
+    cout << question << endl;
+    cout << "A) " << optionA << endl;
+    cout << "B) " << optionB << endl;
+    cout << "C) " << optionC << endl;
 
+    cout << "Your answer (A/B/C): ";
+    string userAnswer;
+    cin >> userAnswer;
+
+    return (userAnswer == correctAnswer);
+}
+
+void runQuiz()
+{
     int score = 0;
-    time_t start, end;
-    time(&start);
-
-    cout << "Welcome, " << user << "! You have 2 minutes to complete the exam." << endl;
-    
+    const int totalTimeInSeconds = 80;
+    const int numberOfQuestions = 10;
 
 
-    for (int i = 0; i < 5; i++) {
-        cout << "Question " << i + 1 << ": " << questions[i].question << endl;
-        for (int j = 0; j < 6; j++) {
-            cout << questions[i].options[j] << endl;
-        }
+    string questions[numberOfQuestions] = {
+        "A technique used by codes to convert an analog signal into a digital bit stream is known as?",
+        "An optical input device that interprets pencil marks on paper media is?",
+        "The brain of any computer system is?",
+        "Which of the following computer language is used for artificial intelligence ?",
+        "What is the chemical symbol for gold?",
+        "The nucleus of an atom consists of?",
+        "The most electronegative element among the following is?",
+        "Movement of cell against concentration gradient is called?",
+        "Plants synthesis protein from?",
+        "Which of the following is known as powerhouse of the cell?",
+    };
 
-        int answer;
-        cout << "Select your answer (1-4): ";
-        cin >> answer;
+    string optionsA[numberOfQuestions] = {
+        "Pulse code modulation",
+        "Punch card reader",
+        "Memory",
+        "COBOL",
+        "Au",
+        "neutrons and electrons",
+        "Fluorine",
+        "Osmosis",
+        "Amino Acids",
+        "Lysosome"
+    };
 
-        if (answer == questions[i].correctOption) {
+    string optionsB[numberOfQuestions] = {
+        "Pulse stretcher",
+        "O.M.R",
+        "CPU",
+        "PROLOG",
+        "Ag",
+        "electrons only",
+        "Chlorine",
+        "Diffusion",
+        "Starch",
+        "Mitochondria"
+    };
+
+    string optionsC[numberOfQuestions] = {
+        "Query processing",
+        "Magnetic tape",
+        "ALU",
+        "FORTRAN",
+        "Ge",
+        "neutrons and protons",
+        "Silicon",
+        "Active Transport",
+        "Glucose",
+        "Golgi apparatus",
+    };
+
+    string correctAnswers[numberOfQuestions] = {
+        "A",
+        "B",
+        "B",
+        "B",
+        "A",
+        "C",
+        "A",
+        "C",
+        "A",
+        "B"
+    };
+
+    auto startTime = chrono::high_resolution_clock::now();
+    auto endTime = startTime + chrono::seconds(totalTimeInSeconds);
+
+    while (chrono::high_resolution_clock::now() < endTime)
+    {
+        clearScreen();
+        int questionIndex = rand() % numberOfQuestions;
+
+        if (askQuestion(questions[questionIndex], optionsA[questionIndex], optionsB[questionIndex], optionsC[questionIndex], correctAnswers[questionIndex]))
+        {
+            cout << "Correct! You earn 1 point." << endl;
             score++;
         }
-    }
-    
-
-    time(&end);
-    double elapsed = difftime(end, start);
-    int examDurationInSeconds = 120; // 2 minutes
-    time_t startTime = time(nullptr);
-    time_t currentTime;
-    while (true) {
-        currentTime = time(nullptr);
-        int elapsedSeconds = currentTime - startTime;
-        if (elapsedSeconds >= examDurationInSeconds) {
-            cout << "Time's up! Submitting the exam..." << endl;
-            break;
+        else
+        {
+            cout << "Incorrect. The correct answer was " << correctAnswers[questionIndex] << "." << endl;
         }
 
-        cout << "Time remaining: " << (examDurationInSeconds - elapsedSeconds) << " seconds" << endl;
-        this_thread::sleep_for(chrono::seconds(1));
+        
+        this_thread::sleep_for(2s);
     }
 
-    cout << "You scored :" << score << " out of 5." << endl;
-    cout << "Time taken: " << elapsed << " seconds." << endl;
+    clearScreen();
+    cout << "Time's up! Your final score is: " << score << " out of " << totalTimeInSeconds / 2 << " points." << endl;
 
-    ofstream src("scores.txt", ios::app);
-    src << score << ' ' << user << endl;
-    system("cls");
-    cout << "\nYour username and the marks obtained by you has been uploaded to our databse\n";
     main();
 
+
+}
+
+
+void clearScreen()
+{
+    cout << "\033[2J\033[H";
 }
 
 void registr()
@@ -194,8 +259,8 @@ void forgot()
     case 1:
     {
         int count = 0;
-        string searchuser, su, sp;
-        cout << "\nEnter your remembered username :";
+        string searchuser, su, sp; 
+        cout << "\nEnter the username that you remember :";
         cin >> searchuser;
 
         ifstream searchu("database.txt");
@@ -209,8 +274,8 @@ void forgot()
         searchu.close();
         if (count == 1)
         {
-            cout << "\n\nHurray, account found\n";
-            cout << "\nYour password is " << sp;
+            cout << "\n\nYour account has been identified:\n";
+            cout << "\nYour password is :" << sp;
             cin.get();
             cin.get();
             system("cls");
@@ -218,8 +283,8 @@ void forgot()
         }
         else
         {
-            cout << "\nSorry, Your userID is not found in our database\n";
-            cout << "\nPlease kindly contact your system administrator for more details \n";
+            cout << "\nSorry the username which you entered is invalid and it is not available in our database \n";
+            cout << "\nContact the system administrator for more information\n";
             cin.get();
             cin.get();
             main();
@@ -230,7 +295,7 @@ void forgot()
     {
         int count = 0;
         string searchpass, su2, sp2;
-        cout << "\nEnter the remembered password :";
+        cout << "\nEnter the password that you remember:";
         cin >> searchpass;
 
         ifstream searchp("database.txt");
@@ -244,8 +309,9 @@ void forgot()
         searchp.close();
         if (count == 1)
         {
-            cout << "\nYour password is found in the database \n";
+            cout << "\nYour password is found in our database: \n";
             cout << "\nYour Id is : " << su2;
+            cout << "Kindly note it down for future use";
             cin.get();
             cin.get();
             system("cls");
@@ -253,7 +319,7 @@ void forgot()
         }
         else
         {
-            cout << "Sorry, We cannot found your password in our database \n";
+            cout << "Sorry, We are unable to find the password in our database \n";
             cout << "\nkindly contact your administrator for more information\n";
             cin.get();
             cin.get();
@@ -269,7 +335,7 @@ void forgot()
         main();
     }
     default:
-        cout << "Sorry, You entered wrong choice. Kindly try again" << endl;
+        cout << "Sorry, The choice you entered doesn't exit.Please try again" << endl;
         forgot();
     }
 
